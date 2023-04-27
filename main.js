@@ -10,6 +10,7 @@ function createMainWindow() {
         width: 800,
         height: 600,
         autoHideMenuBar: true,
+        icon:'./renderer/assets/logo.ico',
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
