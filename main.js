@@ -18,13 +18,13 @@ function createMainWindow() {
     });
 
     //For devtool in dev environment 
-    if (isDev) {
-        mainWindow.webContents.openDevTools();
-    }
+    // if (isDev) {
+    //     mainWindow.webContents.openDevTools();
+    // }
 
     mainWindow.loadFile(path.join(__dirname, './renderer/index.html'));
 }
-
+if (require('electron-squirrel-startup')) app.quit();
 app.whenReady().then(() => {
     createMainWindow()
 
