@@ -3,13 +3,13 @@ const path = require('path');
 const isDev = process.env.NODE_ENV !== 'production';
 const fs = require('fs');
 const pdfEncrypt = require('./renderer/js/encrypt-pdf.js');
-const csvProcess = require('./renderer/js/csv-process.js');
 
 function createMainWindow() {
     const mainWindow = new BrowserWindow({
         title: 'Image Resizer',
         width: 800,
         height: 600,
+        autoHideMenuBar: true,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -42,11 +42,7 @@ app.on('window-all-closed', () => {
 
 ipcMain.on('request-mainprocess-action', (event, arg) => {
     var filePath = arg.pdfPath.toString().replaceAll('\\', '/');
-
-    pdfEncrypt.encryptPdf(filePath);
-})
-
-ipcMain.on('request-csv-process', (event, arg) => {
-    var filePath = arg.toString().replaceAll('\\', '/');
-    csvProcess.parseCsv(filePath);
+    var password = arg.password;
+    
+    pdfEncrypt.encryptPdf(filePath,password);
 })

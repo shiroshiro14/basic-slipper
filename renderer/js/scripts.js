@@ -8,9 +8,15 @@
 // 
 const { ipcRenderer } = require('electron');
 const path = require('path');
+const csvProcess = require('./js/csv-process.js');
+const sendEmail = require('./js/send-email.js');
 
+let payslips = [];
+let csvData = [];
+let loginName = [];
 
-var payslips = [];
+const fileNameDenominator = '_';
+
 
 const isPdfFile = (filePath) => {
     const isPdf = path.extname(filePath) === '.pdf';
@@ -84,18 +90,26 @@ window.addEventListener('DOMContentLoaded', event => {
     const emailFormSubmit = document.body.querySelector('#email-form');
     if (emailFormSubmit) {
         emailFormSubmit.addEventListener('submit', event => {
-            localStorage.setItem('email', document.getElementById('email-field').value);
-            localStorage.setItem('password', document.getElementById('password-field').value);
-
-            var pdfFile = payslips[0];
-            var csvPath = localStorage.getItem('csvPath');
-            console.log(csvPath);
-            let Data =  {
-                password: "2909",
-                pdfPath: pdfFile
+            
+            for(let i = 0; i < loginName.length; i++) {
+                var pdfPath = payslips[i];
+                var email = document.getElementById('email-field').value;
+                var password = document.getElementById('password-field').value;
+                var dirPath = path.dirname(pdfPath);
+                var fileName = path.basename(pdfPath);
+                var encryptedPath = path.join(dirPath, "/encrypted/" + fileName);
+                var finalPath = encryptedPath.toString().replaceAll('\\','/');
+                for (let j=0; j<csvData.length; j++) {
+                    if(loginName[i] === csvData[j][0]) {
+                        var recipient = csvData[j][1];
+                        var name = csvData[j][3];
+                        console.log(finalPath);
+                        sendEmail.sendPayslip(email, password, recipient,finalPath,name);
+                        break;
+                    }
+                }
+                
             }
-            //ipcRenderer.send('request-mainprocess-action', Data);
-            ipcRenderer.send('request-csv-process', csvPath);
             // setTimeout(function() {
             //     localStorage.clear();
             // }, 5000);
@@ -108,7 +122,43 @@ window.addEventListener('DOMContentLoaded', event => {
             if (document.getElementById("csv-chooser").files.length !== 0) {
                 var csvName = document.getElementById("csv-chooser").files[0].path;
                 if (isCsvFile(csvName)) {
-                    localStorage.setItem('csvPath', csvName);
+                    var filePath = csvName.toString().replaceAll('\\','/');
+                    csvProcess.parseCsv(filePath).then(resolve => {
+                        csvData = resolve;
+                        console.log(csvData);
+
+                        if(document.getElementById("payslip-chooser").files.length !== 0) {
+                            for (let i = 0; i < document.getElementById("payslip-chooser").files.length; i++) {
+                                let file = document.getElementById("payslip-chooser").files.item(i);
+                                if (isPdfFile(file.path)) {
+                                    payslips.push(file.path);
+                                    var splitFileName = file.path.toString().split(fileNameDenominator);
+                                    loginName.push(splitFileName[splitFileName.length-2]);
+                                } else {
+                                    alert('Non-pdf file found. Please choose your files again.');
+                                }
+                            }
+                            for (let i=0; i < loginName.length; i++) {
+                                var pdfFile = payslips[i];
+                                for (let j=0; j<csvData.length; j++) {
+                                    if(loginName[i] === csvData[j][0]){
+                                        console.log('Encrypting PDF: ', pdfFile.toString(), 'With password: ',csvData[j][2]);
+                                        let Data = {
+                                            pdfPath: pdfFile,
+                                            password: csvData[j][2]
+                                        }
+                                        ipcRenderer.send('request-mainprocess-action', Data);
+                                        break;
+                                    }
+                                        
+                                        
+                                    
+                                }
+                            }
+                        } else {
+                            alert ('No payslips chosen');
+                        }
+                    })
                 } else {
                     alert('Did not choose a csv file');
                 }
@@ -116,22 +166,16 @@ window.addEventListener('DOMContentLoaded', event => {
                 alert('No csv file found');
             }
 
-            if(document.getElementById("payslip-chooser").files.length !== 0) {
-                for (let i = 0; i < document.getElementById("payslip-chooser").files.length; i++) {
-                    let file = document.getElementById("payslip-chooser").files.item(i);
-                    if (isPdfFile(file.path)) {
-                        
-                        payslips.push(file.path);
-                        
-                    } else {
-                        alert('Non-pdf file found. Please choose your files again.');
-                    }
-                }
-                console.log(payslips[0]);
-            } else {
-                alert ('No payslips chosen');
-            }
+            
             
         });
+    }
+
+    const simpleEmailButtonOnClick = document.body.querySelector('#simple-email');
+    if (simpleEmailButtonOnClick) {
+        simpleEmailButtonOnClick.addEventListener('click', event => {
+            var slipPath = payslips[0];
+            sendEmail.sendPayslip('thanhmapkt@gmail.com', '29091999', 'thanh.le@adnovum.vn',slipPath,"Thanh");
+        })
     }
 });

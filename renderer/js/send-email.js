@@ -2,31 +2,30 @@ const nodemailer = require('nodemailer');
 
 
 // Email options
-const mailOptions = {
-    from: 'your-email-address@gmail.com',
-    to: ['recipient1@example.com', 'recipient2@example.com'],
-    subject: 'Subject line',
-    text: 'This is a test email',
-    attachment: 'path/to/your/file.pdf'
-};
+
 module.exports = {
-    sendPayslip: function(email, password, recipient, payslipPath)  {
+    sendPayslip: function(email, password, recipient, payslipPath, name)  {
         const transporter = nodemailer.createTransport({
-            service: 'localhost',
             host: 'smtp.adnovum.ch',
             port: 25,
+            secure: false,
             auth: {
-            user: email,
-            pass: password
+                user: email,
+                pass: password
+            },
+            tls: {
+                rejectUnauthorized: false
             }
         });
 
         const mailOptions = {
-            from: 'your-email-address@gmail.com',
-            to: [recipient, 'recipient2@example.com'],
-            subject: 'Subject line',
-            text: 'This is a test email',
-            attachment: payslipPath
+            from: email,
+            to: recipient,
+            subject: 'Test email from payslip app',
+            text: 'Hi ' + name + ',\n' + 'This is a mail from the automated payslip sending app.\n If possible, please kindly check the attached pdf and check if it is accuratedly password-protected. The password should be your login name + 123. ex: thanhle123. File content should be part of your name.',
+            attachments: {
+                path: payslipPath,
+            }
         };
         transporter.sendMail(mailOptions, function(error, info) {
             if (error) {
