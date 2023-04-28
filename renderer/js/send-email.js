@@ -1,10 +1,21 @@
 const nodemailer = require('nodemailer');
 
-
-// Email options
+const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
 module.exports = {
     sendPayslip: function(email, password, recipient, payslipPath, name)  {
+
+        const d = new Date();
+        let thisMonth = month[d.getMonth()];
+        let thisYear = d.getFullYear();
+        console.log(thisMonth);
+        console.log(thisYear);
+        var senderName   = email.substring(0, email.lastIndexOf("@"));
+        var splitName = senderName.split('.');
+        console.log(splitName);
+        const firstName = splitName[0].charAt(0).toUpperCase() + splitName[0].slice(1);
+        const lastName = splitName[1].charAt(0).toUpperCase() + splitName[1].slice(1);
+
         const transporter = nodemailer.createTransport({
             host: 'smtp.adnovum.ch',
             port: 25,
@@ -19,14 +30,15 @@ module.exports = {
         });
 
         const mailOptions = {
-            from: email,
+            from: firstName + ' ' + lastName + ' <'+ email +'>',
             to: recipient,
-            subject: 'Test email from payslip app',
-            text: 'Hi ' + name + ',\n' + 'This is a mail from the automated payslip sending app.\n If possible, please kindly check the attached pdf and check if it is accuratedly password-protected. The password should be your login name + 123. ex: thanhle123. File content should be part of your name.',
+            subject: 'Payslip - ' + thisMonth + ' ' + thisYear,
+            text: 'Hi ' + name + ',\n' + 'On behalf of Adnovum Vietnam, I would like to send you the monthly pay-slip of ' + thisMonth + ', ' + thisYear+ '. Please refer to the attached file.\n\n If you have any unclear information,please reach out to me for explanation.\n\nBest regards,\nVi',
             attachments: {
                 path: payslipPath,
             }
         };
+
         transporter.sendMail(mailOptions, function(error, info) {
             if (error) {
             console.log(error);
