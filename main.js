@@ -6,7 +6,7 @@ const pdfEncrypt = require('./renderer/js/encrypt-pdf.js');
 
 function createMainWindow() {
     const mainWindow = new BrowserWindow({
-        title: 'Image Resizer',
+        title: 'Slipper',
         width: 800,
         height: 600,
         autoHideMenuBar: true,

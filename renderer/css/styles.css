@@ -10914,3 +10914,10 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
     margin-left: -15rem;
   }
 }
+
+.log-area {
+  border-radius: 10px;
+  border: 2px solid var(--adnovum-teal);
+  width: 100%;
+  height: 300px;
+}

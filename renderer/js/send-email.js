@@ -2,6 +2,7 @@ const nodemailer = require('nodemailer');
 
 const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
+const logArea = document.getElementById('TerminalTextArea');
 module.exports = {
     sendPayslip: function(email, password, recipient, payslipPath, name)  {
 
@@ -12,7 +13,7 @@ module.exports = {
         console.log(thisYear);
         var senderName   = email.substring(0, email.lastIndexOf("@"));
         var splitName = senderName.split('.');
-        console.log(splitName);
+        
         const firstName = splitName[0].charAt(0).toUpperCase() + splitName[0].slice(1);
         const lastName = splitName[1].charAt(0).toUpperCase() + splitName[1].slice(1);
 
@@ -33,7 +34,7 @@ module.exports = {
             from: firstName + ' ' + lastName + ' <'+ email +'>',
             to: recipient,
             subject: 'Payslip - ' + thisMonth + ' ' + thisYear,
-            text: 'Hi ' + name + ',\n' + 'On behalf of Adnovum Vietnam, I would like to send you the monthly pay-slip of ' + thisMonth + ', ' + thisYear+ '. Please refer to the attached file.\n\n If you have any unclear information,please reach out to me for explanation.\n\nBest regards,\nVi',
+            text: 'Hi ' + name + ',\n' + 'On behalf of Adnovum Vietnam, I would like to send you the monthly pay-slip of ' + thisMonth + ', ' + thisYear+ '. Please refer to the attached file.\n\n If you have any unclear information,please reach out to me for explanation.\n\nBest regards,\n' + firstName,
             attachments: {
                 path: payslipPath,
             }
@@ -41,9 +42,9 @@ module.exports = {
 
         transporter.sendMail(mailOptions, function(error, info) {
             if (error) {
-            console.log(error);
+            logArea.append('[Error]' + error + '\n');
             } else {
-            console.log('Email sent: ' + info.response);
+            logArea.append('[Success] Email sent successfully: ' + recipient +'\n');
             }
         });
     }

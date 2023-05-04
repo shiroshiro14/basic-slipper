@@ -10,13 +10,15 @@ const { ipcRenderer } = require('electron');
 const path = require('path');
 const csvProcess = require('./js/csv-process.js');
 const sendEmail = require('./js/send-email.js');
+const { clear } = require('console');
 
 let payslips = [];
 let csvData = [];
 let loginName = [];
 
+let a = 0;
 const fileNameDenominator = '_';
-
+const logArea = document.getElementById('TerminalTextArea');
 
 const isPdfFile = (filePath) => {
     const isPdf = path.extname(filePath) === '.pdf';
@@ -52,10 +54,12 @@ window.addEventListener('DOMContentLoaded', event => {
             var defaultContent =  document. getElementById('DefaultContent');
             var configurationContent= document.getElementById('ConfigurationContent');
             var sendPayslipContent =  document.getElementById('SendPayslipContent');
+            var viewlogContent = document.getElementById('viewLogContent');
 
             configurationContent.style.display = 'block';
             defaultContent.style.display = 'none';
             sendPayslipContent.style.display = 'none';
+            viewlogContent.style.display = 'none';
         });
     }
 
@@ -66,11 +70,37 @@ window.addEventListener('DOMContentLoaded', event => {
             var defaultContent =  document.getElementById('DefaultContent');
             var configurationContent= document.getElementById('ConfigurationContent');
             var sendPayslipContent =  document.getElementById('SendPayslipContent');
+            var viewlogContent = document.getElementById('viewLogContent');
 
             configurationContent.style.display = 'none';
             defaultContent.style.display = 'none';
             sendPayslipContent.style.display = 'block';
+            viewlogContent.style.display = 'none';
         });
+    }
+
+    const viewLogOnClick = document.body.querySelector('#sidebarViewLog');
+    if (viewLogOnClick) {
+        viewLogOnClick.addEventListener('click', event => {
+            event.preventDefault();
+            var defaultContent =  document.getElementById('DefaultContent');
+            var configurationContent= document.getElementById('ConfigurationContent');
+            var sendPayslipContent =  document.getElementById('SendPayslipContent');
+            var viewlogContent = document.getElementById('viewLogContent');
+
+            configurationContent.style.display = 'none';
+            defaultContent.style.display = 'none';
+            sendPayslipContent.style.display = 'none';
+            viewlogContent.style.display = 'block';
+
+        })
+    }
+
+    const clearLogOnClick = document.body.querySelector('#clear-log');
+    if (clearLogOnClick) {
+        clearLogOnClick.addEventListener('click', event => {
+            logArea.value = '';
+        })
     }
 
     const homeButtonOnClick = document.body.querySelector('#home-btn');
@@ -80,10 +110,14 @@ window.addEventListener('DOMContentLoaded', event => {
             var defaultContent =  document.getElementById('DefaultContent');
             var configurationContent= document.getElementById('ConfigurationContent');
             var sendPayslipContent =  document.getElementById('SendPayslipContent');
+            var viewlogContent = document.getElementById('viewLogContent');
+            var viewlogContent = document.getElementById('viewLogContent');
 
             configurationContent.style.display = 'none';
             defaultContent.style.display = 'block';
             sendPayslipContent.style.display = 'none';
+            viewlogContent.style.display = 'none';
+
         });
     }
 
@@ -116,6 +150,14 @@ window.addEventListener('DOMContentLoaded', event => {
         });
     }
 
+    const testLogOnClick = document.body.querySelector('#test-log');
+    if (testLogOnClick) {
+        testLogOnClick.addEventListener('click', event => {
+            const logArea = document.getElementById('TerminalTextArea');
+            logArea.append('Test ', a);
+            a++;
+        })
+    }
     const fileFormSubmit = document.body.querySelector('#file-form');
     if (fileFormSubmit) {
         fileFormSubmit.addEventListener('submit', event => {
@@ -142,18 +184,16 @@ window.addEventListener('DOMContentLoaded', event => {
                                 var pdfFile = payslips[i];
                                 for (let j=0; j<csvData.length; j++) {
                                     if(loginName[i] === csvData[j][0]){
-                                        console.log('Encrypting PDF: ', pdfFile.toString(), 'With password: ',csvData[j][2]);
+                                        // console.log('Encrypting PDF: ', pdfFile.toString(), 'With password: ',csvData[j][2]);
                                         let Data = {
                                             pdfPath: pdfFile,
                                             password: csvData[j][2]
                                         }
                                         ipcRenderer.send('request-mainprocess-action', Data);
+                                        logArea.append('[Success] Encrypted file: ' + path.basename(pdfFile) + '. Password: ' + csvData[j][2] + '\n');
                                         break;
                                     }
-                                        
-                                        
-                                    
-                                }
+                                }  
                             }
                         } else {
                             alert ('No payslips chosen');
@@ -171,11 +211,4 @@ window.addEventListener('DOMContentLoaded', event => {
         });
     }
 
-    const simpleEmailButtonOnClick = document.body.querySelector('#simple-email');
-    if (simpleEmailButtonOnClick) {
-        simpleEmailButtonOnClick.addEventListener('click', event => {
-            var slipPath = payslips[0];
-            sendEmail.sendPayslip('thanhmapkt@gmail.com', '29091999', 'thanh.le@adnovum.vn',slipPath,"Thanh");
-        })
-    }
 });
