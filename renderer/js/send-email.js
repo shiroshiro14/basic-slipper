@@ -32,7 +32,7 @@ module.exports = {
 
         const mailOptions = {
             from: firstName + ' ' + lastName + ' <'+ email +'>',
-            to: recipient,
+            to: [recipient, 'hr-salary@adnovum.ch'],
             subject: 'Payslip - ' + thisMonth + ' ' + thisYear,
             text: 'Hi ' + name + ',\n' + 'On behalf of Adnovum Vietnam, I would like to send you the monthly pay-slip of ' + thisMonth + ', ' + thisYear+ '. Please refer to the attached file.\n\n If you have any unclear information,please reach out to me for explanation.\n\nBest regards,\n' + firstName,
             attachments: {
