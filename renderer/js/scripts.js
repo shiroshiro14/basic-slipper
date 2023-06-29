@@ -30,7 +30,26 @@ const isCsvFile = (filePath) => {
     return isCsv;
 };
 
-
+async function sendEmails(email, password) {
+    for(let i = 0; i < loginName.length; i++) {
+                let pdfPath = payslips[i];
+                
+                let dirPath = path.dirname(pdfPath);
+                let fileName = path.basename(pdfPath);
+                let encryptedPath = path.join(dirPath, "/encrypted/" + fileName);
+                let finalPath = encryptedPath.toString().replaceAll('\\','/');
+                for (let j=0; j<csvData.length; j++) {
+                    if(loginName[i] === csvData[j][0]) {
+                        var recipient = csvData[j][1];
+                        var name = csvData[j][3];
+                        console.log(finalPath);
+                        await sendEmail.sendPayslip(email, password, recipient,finalPath,name);
+                        break;
+                    }
+                }
+                
+            }
+}
 window.addEventListener('DOMContentLoaded', event => {
 
     // Toggle the side navigation
@@ -124,26 +143,9 @@ window.addEventListener('DOMContentLoaded', event => {
     const emailFormSubmit = document.body.querySelector('#email-form');
     if (emailFormSubmit) {
         emailFormSubmit.addEventListener('submit', event => {
-            
-            for(let i = 0; i < loginName.length; i++) {
-                var pdfPath = payslips[i];
-                var email = document.getElementById('email-field').value;
-                var password = document.getElementById('password-field').value;
-                var dirPath = path.dirname(pdfPath);
-                var fileName = path.basename(pdfPath);
-                var encryptedPath = path.join(dirPath, "/encrypted/" + fileName);
-                var finalPath = encryptedPath.toString().replaceAll('\\','/');
-                for (let j=0; j<csvData.length; j++) {
-                    if(loginName[i] === csvData[j][0]) {
-                        var recipient = csvData[j][1];
-                        var name = csvData[j][3];
-                        console.log(finalPath);
-                        sendEmail.sendPayslip(email, password, recipient,finalPath,name);
-                        break;
-                    }
-                }
-                
-            }
+            let email = document.getElementById('email-field').value;
+            let password = document.getElementById('password-field').value;
+            sendEmails(email, password); 
             // setTimeout(function() {
             //     localStorage.clear();
             // }, 5000);
