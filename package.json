@@ -1,7 +1,7 @@
 {
   "name": "AdnSlipper",
   "productName": "Slipper",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "App",
   "main": "main.js",
   "scripts": {

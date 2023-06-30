@@ -20,8 +20,8 @@ module.exports = {
         const lastName = splitName[1].charAt(0).toUpperCase() + splitName[1].slice(1);
 
         const transporter = nodemailer.createTransport({
-            host: 'localhost',
-            port: 587,
+            host: 'smtp.adnovum.ch',
+            port: 25,
             secure: false,
             auth: {
                 user: email,
